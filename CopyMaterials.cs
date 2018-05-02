@@ -10,12 +10,11 @@ public class CopyMaterials : EditorWindow
     private GameObject fromGO;
     private GameObject toGO;
 
-    [MenuItem("Component/Custom/DoSomething")]
+    [MenuItem("Component/Custom/Copy SMR Materials")]
     static void Init()
     {
         CopyMaterials window = (CopyMaterials)EditorWindow.GetWindow(typeof(CopyMaterials));
         window.Show();
-        Debug.Log("DoSomething loaded");
     }
 
     private void OnGUI()
