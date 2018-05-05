@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Linq;
 
 public class CopyMaterials : EditorWindow
 {
@@ -20,40 +21,47 @@ public class CopyMaterials : EditorWindow
     private void OnGUI()
     {
         GUILayout.Label("Copy Materials", EditorStyles.boldLabel);
+
         firstObject = EditorGUILayout.ObjectField("From Object", firstObject, typeof(GameObject), true);
         secondObject = EditorGUILayout.ObjectField("To Object", secondObject, typeof(GameObject), true);
-        fromGO = (GameObject)firstObject;
-        toGO = (GameObject)secondObject;
+
+        // Safe cast. Won't exception on fail.
+        fromGO = firstObject as GameObject;
+        toGO = secondObject as GameObject;
 
         if (fromGO != null & toGO != null)
         {
-            SkinnedMeshRenderer fromSMR = (SkinnedMeshRenderer) fromGO.GetComponent(typeof(SkinnedMeshRenderer));
-            SkinnedMeshRenderer toSMR = (SkinnedMeshRenderer) toGO.GetComponent(typeof(SkinnedMeshRenderer));
+            var fromSMR = fromGO.GetComponent(typeof(SkinnedMeshRenderer)) as SkinnedMeshRenderer;
+            var toSMR = toGO.GetComponent(typeof(SkinnedMeshRenderer)) as SkinnedMeshRenderer;
             
-            if (fromSMR != null)
+            if (fromSMR == null)
             {
-                if (toSMR != null)
-                {
-                    if (GUILayout.Button("Copy!"))
-                    {
-                        Material[] mats = new Material[fromSMR.sharedMaterials.Length];
-                        for (int i = 0; i < fromSMR.sharedMaterials.Length; i++)
-                        {
-                            mats[i] = fromSMR.sharedMaterials[i];
-                        }
-                        toSMR.materials = mats;
-                        firstObject = null;
-                        secondObject = null;
-                    }
-                }
-                else
-                {
-                    GUILayout.Label("ToSMR is null");
-                }
-            } else
-            {
+                firstObject = null;
+                secondObject = null;
+
                 GUILayout.Label("FromSMR is null");
+                return;
             }
+
+            if (toSMR == null) 
+            {
+                firstObject = null;
+                secondObject = null;
+                
+                GUILayout.Label("ToSMR is null");
+                return;
+            }
+                
+            if (GUILayout.Button("Copy!"))
+            {
+                var mats = fromSMR.sharedMaterials.ToArray();
+
+                toSMR.materials = mats;
+                
+                firstObject = null;
+                secondObject = null;
+            }
+            
         }
     }
 }
